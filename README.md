@@ -85,6 +85,38 @@ terraform destroy   # ALWAYS tear down to avoid charges
 > ⚠️ **Cost note:** these are learning deployments. Each README states rough cost and what to watch.
 > Most fit comfortably in the AWS Free Tier if torn down promptly. Always run `terraform destroy` when done.
 
+
+---
+
+## Terraform state
+
+This repo uses **remote state** stored in S3 with DynamoDB locking.
+
+| Resource | Value |
+|----------|-------|
+| S3 bucket | `aws-use-cases-tfstate-596436429175` |
+| DynamoDB table | `aws-use-cases-terraform-locks` |
+| Region | `eu-west-1` |
+
+Each use case configures its backend in `versions.tf`:
+
+```hcl
+terraform {
+  backend "s3" {
+    bucket         = "aws-use-cases-tfstate-596436429175"
+    key            = "use-cases/<nn-name>/terraform.tfstate"
+    region         = "eu-west-1"
+    dynamodb_table = "aws-use-cases-terraform-locks"
+    encrypt        = true
+  }
+}
+```
+**Why remote state?**
+
+- State is stored durably in S3, not on a laptop that can crash
+- Versioning allows recovery if state is corrupted
+- DynamoDB locking prevents concurrent apply operations from corrupting state
+
 ---
 
 ## A note on the approach
