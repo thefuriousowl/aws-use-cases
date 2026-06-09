@@ -4,3 +4,8 @@ IMPLEMENTATION_PLAN.md
 *.tfstate*
 build/
 __pycache__/
+.DS_Store
+*.tfvars
+lambda.zip
+*.tfbackend
+*.bkp

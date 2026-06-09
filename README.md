@@ -90,12 +90,11 @@ terraform destroy   # ALWAYS tear down to avoid charges
 
 ## Terraform state
 
-This repo uses **remote state** stored in S3 with DynamoDB locking.
+This repo uses **remote state** stored in S3 with native S3 locking (`use_lockfile = true`).
 
 | Resource | Value |
 |----------|-------|
-| S3 bucket | `aws-use-cases-tfstate-596436429175` |
-| DynamoDB table | `aws-use-cases-terraform-locks` |
+| S3 bucket | Provided via `backend.tfbackend` (gitignored) |
 | Region | `eu-west-1` |
 
 Each use case configures its backend in `versions.tf`:
@@ -103,19 +102,32 @@ Each use case configures its backend in `versions.tf`:
 ```hcl
 terraform {
   backend "s3" {
-    bucket         = "aws-use-cases-tfstate-596436429175"
-    key            = "use-cases/<nn-name>/terraform.tfstate"
-    region         = "eu-west-1"
-    dynamodb_table = "aws-use-cases-terraform-locks"
-    encrypt        = true
+    # bucket provided via -backend-config
+    key          = "use-cases/<nn-name>/terraform.tfstate"
+    region       = "eu-west-1"
+    use_lockfile = true
+    encrypt      = true
   }
 }
 ```
+
+Create a `backend.tfbackend` file in each terraform directory (gitignored):
+
+```hcl
+bucket = "your-state-bucket-name"
+```
+
+Then initialize with:
+
+```bash
+terraform init -backend-config=backend.tfbackend
+```
+
 **Why remote state?**
 
 - State is stored durably in S3, not on a laptop that can crash
 - Versioning allows recovery if state is corrupted
-- DynamoDB locking prevents concurrent apply operations from corrupting state
+- `use_lockfile` enables native S3 locking (Terraform 1.10+) — no DynamoDB table needed
 
 ---
 

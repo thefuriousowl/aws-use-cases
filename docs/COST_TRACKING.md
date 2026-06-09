@@ -4,7 +4,7 @@ Log every deployment here. **No row should be left without "Destroyed? = Yes" by
 
 | Date | Use Case | Key Billable Resources | Est. Cost | Destroyed? |
 |------|----------|------------------------|-----------|------------|
-|      |          |                        |           |            |
+| 2026-06-09 | UC02 — Decoupled Edge Ingestion | IoT Core, SQS (2 queues), Lambda, DynamoDB | $0 (Free Tier) | Yes |
 
 ---
 
